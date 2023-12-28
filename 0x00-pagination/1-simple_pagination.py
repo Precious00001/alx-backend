@@ -1,43 +1,63 @@
 #!/usr/bin/env python3
-'''
-Description: Implementing a method named get_page that takes two integer
-arguments page with default value 1 and page_size with default value 10.
-'''
-
+"""Simple pagination sample.
+"""
 import csv
-from typing import List
-from __simple_helper_function import index_range  # Corrected import
+from typing import List, Tuple
+
+
+def index_range(page: int, page_size: int) -> Tuple[int, int]:
+    """Retrieves the index range for a given page and page size.
+
+    Args:
+        page (int): The current page number.
+        page_size (int): The number of items per page.
+
+    Returns:
+        Tuple[int, int]: The start and end indices for the specified page.
+    """
+    start = (page - 1) * page_size
+    end = start + page_size
+    return (start, end)
 
 
 class Server:
-    """Server class to paginate a database of popular baby names."""
-
-    DATA_FILE = "Popular_Baby_Names.csv"  # File path for the dataset
+    """Server class to paginate a database of popular baby names.
+    """
+    DATA_FILE = "Popular_Baby_Names.csv"
 
     def __init__(self):
-        ''' Initialize instance. '''
-        self.__dataset = None  # Cached dataset attribute
+        """Initializes a new Server instance.
+        """
+        self.__dataset = None
 
     def dataset(self) -> List[List]:
-        """Cached dataset retrieval method."""
+        """Cached dataset retrieval.
+
+        Returns:
+            List[List]: The dataset excluding the header.
+        """
         if self.__dataset is None:
-            # Read the CSV file and store the dataset, excluding header
             with open(self.DATA_FILE) as f:
                 reader = csv.reader(f)
                 dataset = [row for row in reader]
-            self.__dataset = dataset[1:]  # Exclude header row
+            self.__dataset = dataset[1:]
 
-        return self.__dataset  # Return the cached dataset
+        return self.__dataset
 
     def get_page(self, page: int = 1, page_size: int = 10) -> List[List]:
-        ''' Output page of dataset. '''
-        assert isinstance(page, int) and isinstance(page_size, int)
+        """Retrieves a page of data.
+
+        Args:
+            page (int): The page number to retrieve (default is 1).
+            page_size (int): The number of items per page (default is 10).
+
+        Returns:
+            List[List]: The data for the specified page.
+        """
+        assert type(page) == int and type(page_size) == int
         assert page > 0 and page_size > 0
-
-        # Calculate the start and end indices for the requested page
         start, end = index_range(page, page_size)
-
-        try:
-            return self.dataset()[start:end]  # Return the requested page
-        except IndexError:
-            return []  # Return an empty list if the page is out of range
+        data = self.dataset()
+        if start > len(data):
+            return []
+        return data[start:end]
